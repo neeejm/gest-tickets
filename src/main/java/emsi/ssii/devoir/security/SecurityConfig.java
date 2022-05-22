@@ -33,12 +33,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         authProvider.setPasswordEncoder(bCryptPasswordEncoder);
         return authProvider;
     }
-    //  @Autowired
-    // public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-    //     auth.inMemoryAuthentication()
-    //       .withUser("test").password(passwordEncoder.encode("test"))
-    //       .authorities(Constants.getRole("admin"));
-    // }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -47,13 +41,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        // http.authorizeHttpRequests().antMatchers(Constants.API_PREFIX + "/devs/**").hasRole(Constants.getRole("dev"));
-        // http.authorizeHttpRequests().antMatchers(Constants.API_PREFIX + "/admins/**").hasRole("ROLE_ADMIN");
-        // http.authorizeHttpRequests().antMatchers(Constants.API_PREFIX + "/clients/**").hasRole(Constants.getRole("client"));
-        // http.authorizeRequests().antMatchers("/api/v1/devs/**").hasRole("DEV");
-        // http.authorizeRequests().anyRequest().authenticated();
-        // http.httpBasic();
+        http.authorizeHttpRequests().antMatchers(Constants.API_PREFIX + "/devs/**").hasRole(Constants.getRole("dev"));
+        http.authorizeHttpRequests().antMatchers(Constants.API_PREFIX + "/admins/**").hasRole(Constants.getRole("admin"));
+        http.authorizeHttpRequests().antMatchers(Constants.API_PREFIX + "/clients/**").hasRole(Constants.getRole("client"));
+        http.authorizeRequests().anyRequest().authenticated();
+        http.httpBasic();
         http.cors().and().csrf().disable();
-        http.authorizeRequests().anyRequest().permitAll();
     }
 }
