@@ -28,6 +28,9 @@ public class Ticket {
     @ManyToOne
     @JoinColumn(name = "client_id")
     private Client client;
+    @ManyToOne
+    @JoinColumn(name = "dev_id")
+    private Dev dev;
 
     public Ticket() {
     }
@@ -88,6 +91,23 @@ public class Ticket {
     public void setSoftware(Software software) {
         this.software = software;
     }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
+    public Dev getDev() {
+        return dev;
+    }
+
+    public void setDev(Dev dev) {
+        this.dev = dev;
+    }
+
 
     @Override
     public String toString() {

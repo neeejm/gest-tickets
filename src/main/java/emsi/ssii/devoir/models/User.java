@@ -8,11 +8,9 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 
-import emsi.ssii.devoir.Constants;
-
 @Entity(name = "_user")
 @Inheritance(strategy = InheritanceType.JOINED)
-public class User {
+public abstract class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "user_id")
@@ -31,7 +29,6 @@ public class User {
         this.email = email;
         this.displayName = displayName;
         this.password = password;
-        this.role = Constants.getRole("ADMIN");
     }
 
     public int getId() {

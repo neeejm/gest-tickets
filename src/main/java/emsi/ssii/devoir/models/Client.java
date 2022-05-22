@@ -5,7 +5,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;
 
-import emsi.ssii.devoir.Constants;
+import emsi.ssii.devoir.utils.Constants;
 
 @Entity
 @AttributeOverride(name = "user_id", column = @Column(name = "client_id"))
@@ -14,10 +14,11 @@ public class Client extends User {
 
     public Client() {
         super();
+        this.setRole(Constants.getRole("client"));
     }
 
     public Client(String email, String displayName, String password) {
         super(email, displayName, password);
-        this.setRole(Constants.getRole("CLIENT"));
+        this.setRole(Constants.getRole("client"));
     }
 }
