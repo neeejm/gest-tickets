@@ -14,4 +14,6 @@ public interface UserService<T> {
     List<T> findAll();
 
     List<T> findByRole(String role);
+
+    T findByEmail(String email);
 }

@@ -71,5 +71,10 @@ public class UserServiceImpl<T extends User> implements UserService<T>, UserDeta
         authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
         return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authorities);
     }
+
+    @Override
+    public T findByEmail(String email) {
+        return userRepo.findByEmail(email).orElse(null);
+    }
 }
 

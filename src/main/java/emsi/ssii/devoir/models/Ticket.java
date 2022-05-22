@@ -18,7 +18,7 @@ public class Ticket {
     private int id;
     private String description;
     @Enumerated(EnumType.STRING)
-    private Urgence ugence;
+    private Urgence urgence;
     @Enumerated(EnumType.STRING)
     private Status status;
     private String os;
@@ -37,7 +37,7 @@ public class Ticket {
 
     public Ticket(String description, Urgence ugence, Status status, String os, Software software, Client client) {
         this.description = description;
-        this.ugence = ugence;
+        this.urgence = ugence;
         this.status = status;
         this.os = os;
         this.software = software;
@@ -60,12 +60,12 @@ public class Ticket {
         this.description = description;
     }
 
-    public Urgence getUgence() {
-        return ugence;
+    public Urgence getUrgence() {
+        return urgence;
     }
 
-    public void setUgence(Urgence ugence) {
-        this.ugence = ugence;
+    public void setUrgence(Urgence ugence) {
+        this.urgence = ugence;
     }
 
     public Status getStatus() {

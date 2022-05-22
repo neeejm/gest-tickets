@@ -41,11 +41,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests().antMatchers(Constants.API_PREFIX + "/devs/**").hasRole(Constants.getRole("dev"));
-        http.authorizeHttpRequests().antMatchers(Constants.API_PREFIX + "/admins/**").hasRole(Constants.getRole("admin"));
-        http.authorizeHttpRequests().antMatchers(Constants.API_PREFIX + "/clients/**").hasRole(Constants.getRole("client"));
-        http.authorizeRequests().anyRequest().authenticated();
-        http.httpBasic();
+        // http.authorizeHttpRequests().antMatchers(Constants.API_PREFIX + "/devs/**").hasRole(Constants.getRole("dev"));
+        // http.authorizeHttpRequests().antMatchers(Constants.API_PREFIX + "/admins/**").hasRole(Constants.getRole("admin"));
+        // http.authorizeHttpRequests().antMatchers(Constants.API_PREFIX + "/clients/**").hasRole(Constants.getRole("client"));
+        // http.authorizeRequests().anyRequest().authenticated();
+        // http.httpBasic();
         http.cors().and().csrf().disable();
+        // http.authorizeHttpRequests().anyRequest().permitAll();
+
+        http.authorizeHttpRequests().antMatchers("/login/**", "/logout/**").permitAll();
+        http.authorizeHttpRequests().antMatchers("/dev/**").hasRole(Constants.getRole("dev"));
+        http.authorizeHttpRequests().antMatchers("/admin/**").hasRole(Constants.getRole("admin"));
+        http.authorizeHttpRequests().antMatchers("/client/**").hasRole(Constants.getRole("client"));
+        http.authorizeHttpRequests().anyRequest().authenticated();
+        http.formLogin().and().logout().clearAuthentication(true).invalidateHttpSession(true);
     }
 }

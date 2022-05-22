@@ -1,43 +1,42 @@
 package emsi.ssii.devoir.mvccontrollers;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import emsi.ssii.devoir.models.Admin;
 import emsi.ssii.devoir.models.Software;
-import emsi.ssii.devoir.models.Ticket;
+import emsi.ssii.devoir.models.User;
 import emsi.ssii.devoir.services.SoftwareService;
 import emsi.ssii.devoir.services.TicketService;
 import emsi.ssii.devoir.services.UserService;
+import emsi.ssii.devoir.utils.Constants;
 
 @Controller
-@RequestMapping("/admin")
+@RequestMapping("admin")
 public class AdminMvcController {
     @Autowired
-    private UserService<Admin> userService;
+    private UserService<User> userService;
     @Autowired
     private TicketService ticketService;
     @Autowired
     private SoftwareService softwareService;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @GetMapping("/tickets")
-    public ModelAndView getTickets(@RequestParam(name = "assigned", required = false) Optional<Boolean> assigned) {
+    public ModelAndView getTickets(@RequestParam(name = "assigned", required = false) Optional<Boolean> assigned, Authentication auth) {
         ModelAndView mv = new ModelAndView("tickets");
         if (assigned.isPresent()) {
             if (!assigned.get()) {
@@ -49,35 +48,60 @@ public class AdminMvcController {
         } else {
             mv.addObject("tickets", ticketService.findAll());
         }
+        User user = userService.findByEmail(auth.getName());
+        mv.addObject("admin", user.getRole().equals(Constants.getRole("admin")));
+        mv.addObject("name", user.getDisplayName());
         return mv;
     }
 
-    @GetMapping("/add")
-	public String add(Model model) {
-        Ticket ticket = new Ticket();
-		// model.addAttribute("ticket", ticket);
-		return "addTicket";
+    @GetMapping("/apps")
+    public ModelAndView getApps(Authentication auth) {
+        ModelAndView mv = new ModelAndView("apps");
+        mv.addObject("apps", softwareService.findAll());
+        User user = userService.findByEmail(auth.getName());
+        mv.addObject("admin", user.getRole().equals(Constants.getRole("admin")));
+        mv.addObject("name", user.getDisplayName());
+        return mv;
+    }
+
+    @GetMapping("/apps/add")
+	public String addApp(Model model, Authentication auth) {
+        Software app = new Software();
+		model.addAttribute("app", app);
+        User user = userService.findByEmail(auth.getName());
+        model.addAttribute("admin", user.getRole().equals(Constants.getRole("admin")));
+        model.addAttribute("name", user.getDisplayName());
+		return "addApp";
 
 	}
 
-    @PostMapping("/tickets/add")
-    public String enregistrer(@ModelAttribute("ticket") Ticket ticket) {
-        ticketService.add(ticket);
-		return "redirect:admin/tickets";
+    @PostMapping("/apps/add")
+    public String saveApp(@ModelAttribute("app") Software app) {
+        try {
+            softwareService.add(app);
+            logger.info("App added");
+            return "redirect:/admin/apps";
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return "redirect:/admin/apps/add";
+        }
 	}
 
-    // @PutMapping("/tickets/{ticket_id}/assignTo/{dev_id}")
-    // public ResponseEntity<Ticket> assignTicketToDev(@PathVariable("ticket_id") int ticket_id, @PathVariable("dev_id") int dev_id) {
-    //     return ResponseEntity.ok(ticketService.assignToDev(ticket_id, dev_id));
-    // }
+    @GetMapping("/affect")
+	public String affectTicketToDev(Model model, Authentication auth) {
+		model.addAttribute("tickets", ticketService.findAll().stream().filter(ticket -> ticket.getDev() == null).collect(Collectors.toList()));
+		model.addAttribute("devs", userService.findAll().stream().filter(user -> user.getRole().equals(Constants.getRole("dev"))).collect(Collectors.toList()));
 
-    // @GetMapping("/apps")
-    // public ResponseEntity<List<Software>> getAllApps() {
-    //     return ResponseEntity.ok(softwareService.findAll());
-    // }
+        User user = userService.findByEmail(auth.getName());
+        model.addAttribute("admin", user.getRole().equals(Constants.getRole("admin")));
+        model.addAttribute("name", user.getDisplayName());
+		return "affectTicketToDev";
 
-    // @PostMapping("/apps")
-    // public ResponseEntity<Software> addApp(@RequestBody Software software) {
-    //     return ResponseEntity.status(HttpStatus.CREATED).body(softwareService.add(software));
-    // }
+	}
+
+    @PostMapping("/affect")
+    public String assignTicketToDev(@RequestParam("ticketId") int ticket_id, @RequestParam("devId") int dev_id) {
+       ticketService.assignToDev(ticket_id, dev_id);
+       return "redirect:/admin/tickets";
+    }
 }
